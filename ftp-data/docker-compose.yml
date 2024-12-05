@@ -19,15 +19,3 @@ services:
       - ./ftp-data:/usr/share/nginx/html:ro  # Almacenamiento compartido
       - ./ftp-data:/home/vsftpd
 
-  filebrowser:
-    image: filebrowser/filebrowser:latest
-    container_name: filebrowser_server
-    restart: unless-stopped
-    ports:
-      - "8087:80"  # Interfaz web de FileBrowser
-    volumes:
-      - ./ftp-data:/srv  # Compartir almacenamiento con FTP y Nginx
-      - ./database.db:/database.db  # Base de datos de FileBrowser
-    environment:
-      - FILEBROWSER_AUTH_METHOD=basic
-      - FILEBROWSER_BASEURL=/  # Base URL para acceder
