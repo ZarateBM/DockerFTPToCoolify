@@ -1,13 +1,14 @@
 version: '3.8'
 
 services:
-  ftp-server:
+  combined-server:
     image: fauria/vsftpd
-    container_name: ftp_server
+    container_name: combined_server
     restart: unless-stopped
     ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
+      - "21:21"            # FTP
+      - "30000-30009:30000-30009" # FTP Pasivo
+      - "8086:80"          # Nginx para servir imágenes
     environment:
       - FTP_USER=adminUser
       - FTP_PASS=AdminUser333!
@@ -15,17 +16,5 @@ services:
       - PASV_MIN_PORT=30000
       - PASV_MAX_PORT=30009
     volumes:
+      - ./ftp-data:/usr/share/nginx/html:ro  # Almacenamiento compartido
       - ./ftp-data:/home/vsftpd
-
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx_server
-    restart: unless-stopped
-    ports:
-      - "8086:80" # Puerto donde se expondrán las imágenes
-    volumes:
-      - ./ftp-data:/usr/share/nginx/html:ro # Sirve el contenido como archivos estáticos
-    environment:
-      - NGINX_HOST=0.0.0.0
-      - NGINX_PORT=80
