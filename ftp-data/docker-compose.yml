@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  ftp-server:
+    image: fauria/vsftpd
+    container_name: ftp_server
+    restart: unless-stopped
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      - FTP_USER=adminUser
+      - FTP_PASS=AdminUser333!
+      - PASV_ADDRESS=0.0.0.0
+      - PASV_MIN_PORT=30000
+      - PASV_MAX_PORT=30009
+    volumes:
+      - ./ftp-data:/home/vsftpd
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: file_browser
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+    volumes:
+      - ./ftp-data:/srv
+      - ./database.db:/database.db
+      - ./filebrowser.json:/.filebrowser.json:ro
+    environment:
+      - SERVICE_FQDN_FILEBROWSER_80
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    restart: unless-stopped
+    ports:
+      - "8080:80" # Puerto donde se expondrán las imágenes
+    volumes:
+      - ./ftp-data:/usr/share/nginx/html:ro # Sirve el contenido como archivos estáticos
+    environment:
+      - NGINX_HOST=0.0.0.0
+      - NGINX_PORT=80
